@@ -284,7 +284,7 @@ function printFields(
       String(f.type) +
       printDeprecated(f) +
       printFederationDirectives(f) +
-      printAppliedDirectives(f),
+      printOtherKnownDirectives(f),
   );
   return printBlock(fields);
 }
@@ -308,13 +308,13 @@ function printFederationDirectives(
 
 // Core addition: print `@tag` and `@inaccessible` directives found in subgraph
 // SDL into the supergraph SDL
-function printAppliedDirectives(field: GraphQLField<any, any>) {
-  const appliedDirectives = (
-    field.extensions?.federation?.appliedDirectives ?? []
+function printOtherKnownDirectives(field: GraphQLField<any, any>) {
+  const otherKnownDirectives = (
+    field.extensions?.federation?.otherKnownDirectives ?? []
   ) as DirectiveNode[];
 
-  if (appliedDirectives.length < 1) return '';
-  return ` ${appliedDirectives
+  if (otherKnownDirectives.length < 1) return '';
+  return ` ${otherKnownDirectives
     .slice()
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map(print)
