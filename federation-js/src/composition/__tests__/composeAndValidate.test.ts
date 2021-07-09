@@ -117,57 +117,72 @@ it('composes and validates all (24) permutations without error', () => {
   });
 });
 
-it("doesn't throw errors when a type is unknown, but captures them instead", () => {
-  const serviceA = {
-    typeDefs: gql`
-      type Query {
-        foo: Bar!
-      }
+describe('unknown types', () => {
+  it("doesn't throw errors when a type is unknown, but captures them instead", () => {
+    const serviceA = {
+      typeDefs: gql`
+        type Query {
+          foo: Bar!
+        }
 
-      extend type Bar @key(fields: "id") {
-        id: ID! @external
-        thing: String
-      }
-    `,
-    name: 'serviceA',
-  };
+        extend type Bar @key(fields: "id") {
+          id: ID! @external
+          thing: String
+        }
+      `,
+      name: 'serviceA',
+    };
 
-  let compositionResult: CompositionResult;
-  expect(
-    () => (compositionResult = composeAndValidate([serviceA])),
-  ).not.toThrow();
+    let compositionResult: CompositionResult;
+    expect(
+      () => (compositionResult = composeAndValidate([serviceA])),
+    ).not.toThrow();
 
-  assertCompositionFailure(compositionResult!);
-  const { errors } = compositionResult;
-  expect(errors).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "code": "MISSING_ERROR",
-        "locations": Array [
-          Object {
-            "column": 8,
-            "line": 3,
-          },
-        ],
-        "message": "Unknown type \\"Bar\\".",
-      },
-      Object {
-        "code": "EXTENSION_WITH_NO_BASE",
-        "locations": Array [
-          Object {
-            "column": 1,
-            "line": 6,
-          },
-        ],
-        "message": "[serviceA] Bar -> \`Bar\` is an extension type, but \`Bar\` is not defined in any service",
-      },
-      Object {
-        "code": "MISSING_ERROR",
-        "locations": Array [],
-        "message": "Type Query must define one or more fields.",
-      },
-    ]
-  `);
+    assertCompositionFailure(compositionResult!);
+    const { errors } = compositionResult;
+    expect(errors).toMatchInlineSnapshot(`
+          Array [
+            Object {
+              "code": "MISSING_ERROR",
+              "locations": Array [
+                Object {
+                  "column": 8,
+                  "line": 3,
+                },
+              ],
+              "message": "Unknown type \\"Bar\\".",
+            },
+            Object {
+              "code": "EXTENSION_WITH_NO_BASE",
+              "locations": Array [
+                Object {
+                  "column": 1,
+                  "line": 6,
+                },
+              ],
+              "message": "[serviceA] Bar -> \`Bar\` is an extension type, but \`Bar\` is not defined in any service",
+            },
+            Object {
+              "code": "MISSING_ERROR",
+              "locations": Array [],
+              "message": "Type Query must define one or more fields.",
+            },
+          ]
+      `);
+  });
+
+  it("doesn't throw errors when a type is unknown, and the type has directive usages which we've captured", () => {
+    const inventory = {
+      name: 'inventory',
+      typeDefs: gql`
+        extend type Product @key(fields: "id") {
+          id: ID! @external @tag(name: "hi from inventory")
+        }
+      `,
+    };
+
+    expect(() => composeAndValidate([inventory])).not.toThrow();
+  });
 });
 
 it('treats types with @extends as type extensions', () => {
