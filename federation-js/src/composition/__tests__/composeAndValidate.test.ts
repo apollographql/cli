@@ -920,6 +920,78 @@ describe('composition of schemas with directives', () => {
       );
     }
   });
+
+  it('includes @tag directives when usages are on an @external field', () => {
+    const inventory = {
+      name: 'inventory',
+      typeDefs: gql`
+        extend type Product @key(fields: "id") {
+          id: ID! @external @tag(name: "hi from inventory")
+          quantity: Int!
+        }
+      `,
+    };
+
+    const products = {
+      name: 'products',
+      typeDefs: gql`
+        extend type Query {
+          product(id: ID!): Product
+        }
+
+        type Product @key(fields: "id") {
+          id: ID!
+          sku: String
+        }
+      `,
+    };
+
+    const compositionResult = composeAndValidate([inventory, products]);
+    assertCompositionSuccess(compositionResult);
+    expect(compositionResult.supergraphSdl).toMatchInlineSnapshot(`
+      "schema
+        @core(feature: \\"https://specs.apollo.dev/core/v0.1\\"),
+        @core(feature: \\"https://specs.apollo.dev/join/v0.1\\"),
+        @core(feature: \\"https://specs.apollo.dev/tag/v0.1\\")
+      {
+        query: Query
+      }
+
+      directive @core(feature: String!) repeatable on SCHEMA
+
+      directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet) on FIELD_DEFINITION
+
+      directive @join__type(graph: join__Graph!, key: join__FieldSet) repeatable on OBJECT | INTERFACE
+
+      directive @join__owner(graph: join__Graph!) on OBJECT | INTERFACE
+
+      directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+      directive @tag(name: String!) repeatable on FIELD_DEFINITION
+
+      scalar join__FieldSet
+
+      enum join__Graph {
+        INVENTORY @join__graph(name: \\"inventory\\" url: \\"\\")
+        PRODUCTS @join__graph(name: \\"products\\" url: \\"\\")
+      }
+
+      type Product
+        @join__owner(graph: PRODUCTS)
+        @join__type(graph: PRODUCTS, key: \\"id\\")
+        @join__type(graph: INVENTORY, key: \\"id\\")
+      {
+        id: ID! @join__field(graph: PRODUCTS) @tag(name: \\"hi from inventory\\")
+        quantity: Int! @join__field(graph: INVENTORY)
+        sku: String @join__field(graph: PRODUCTS)
+      }
+
+      type Query {
+        product(id: ID!): Product @join__field(graph: PRODUCTS)
+      }
+      "
+    `);
+  });
 });
 
 it('composition of full-SDL schemas without any errors', () => {
@@ -1037,76 +1109,4 @@ it('composition of full-SDL schemas without any errors', () => {
 
   const compositionResult = composeAndValidate([serviceA, serviceB]);
   expect(!compositionHasErrors(compositionResult));
-});
-
-it('tag directives are still included when usages are on an @external field', () => {
-  const inventory = {
-    name: 'inventory',
-    typeDefs: gql`
-      extend type Product @key(fields: "id") {
-        id: ID! @external @tag(name: "hi from inventory")
-        quantity: Int!
-      }
-    `,
-  };
-
-  const products = {
-    name: 'products',
-    typeDefs: gql`
-      extend type Query {
-        product(id: ID!): Product
-      }
-
-      type Product @key(fields: "id") {
-        id: ID!
-        sku: String
-      }
-    `,
-  };
-
-  const compositionResult = composeAndValidate([inventory, products]);
-  assertCompositionSuccess(compositionResult);
-  expect(compositionResult.supergraphSdl).toMatchInlineSnapshot(`
-    "schema
-      @core(feature: \\"https://specs.apollo.dev/core/v0.1\\"),
-      @core(feature: \\"https://specs.apollo.dev/join/v0.1\\"),
-      @core(feature: \\"https://specs.apollo.dev/tag/v0.1\\")
-    {
-      query: Query
-    }
-
-    directive @core(feature: String!) repeatable on SCHEMA
-
-    directive @join__field(graph: join__Graph, requires: join__FieldSet, provides: join__FieldSet) on FIELD_DEFINITION
-
-    directive @join__type(graph: join__Graph!, key: join__FieldSet) repeatable on OBJECT | INTERFACE
-
-    directive @join__owner(graph: join__Graph!) on OBJECT | INTERFACE
-
-    directive @join__graph(name: String!, url: String!) on ENUM_VALUE
-
-    directive @tag(name: String!) repeatable on FIELD_DEFINITION
-
-    scalar join__FieldSet
-
-    enum join__Graph {
-      INVENTORY @join__graph(name: \\"inventory\\" url: \\"\\")
-      PRODUCTS @join__graph(name: \\"products\\" url: \\"\\")
-    }
-
-    type Product
-      @join__owner(graph: PRODUCTS)
-      @join__type(graph: PRODUCTS, key: \\"id\\")
-      @join__type(graph: INVENTORY, key: \\"id\\")
-    {
-      id: ID! @join__field(graph: PRODUCTS) @tag(name: \\"hi from inventory\\")
-      quantity: Int! @join__field(graph: INVENTORY)
-      sku: String @join__field(graph: PRODUCTS)
-    }
-
-    type Query {
-      product(id: ID!): Product @join__field(graph: PRODUCTS)
-    }
-    "
-  `);
 });
