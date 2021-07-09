@@ -677,7 +677,11 @@ export function addFederationMetadataToSchemaNodes({
   }
 
   for (const [typeName, fieldsToDirectivesMap] of typeNameToFieldDirectivesMap.entries()) {
-    const type = schema.getType(typeName) as GraphQLObjectType;
+    // It's plausible we're dealing with an incomplete schema here which might not
+    // account for all the types we saw when inspecting SDL. In the case that a
+    // type is extended with no base definition anywhere, it won't exist in the schema.
+    const type = schema.getType(typeName) as GraphQLObjectType | undefined;
+    if (!type) continue;
 
     for (const [
       fieldName,

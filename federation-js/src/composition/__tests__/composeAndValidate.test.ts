@@ -181,7 +181,20 @@ describe('unknown types', () => {
       `,
     };
 
-    expect(() => composeAndValidate([inventory])).not.toThrow();
+    const compositionResult = composeAndValidate([inventory]);
+    assertCompositionFailure(compositionResult);
+    expect(compositionResult.errors[0]).toMatchInlineSnapshot(`
+      Object {
+        "code": "EXTENSION_WITH_NO_BASE",
+        "locations": Array [
+          Object {
+            "column": 1,
+            "line": 2,
+          },
+        ],
+        "message": "[inventory] Product -> \`Product\` is an extension type, but \`Product\` is not defined in any service",
+      }
+    `);
   });
 });
 
