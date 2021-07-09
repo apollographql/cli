@@ -1069,7 +1069,8 @@ it('tag directives are still included when usages are on an @external field', ()
   expect(compositionResult.supergraphSdl).toMatchInlineSnapshot(`
     "schema
       @core(feature: \\"https://specs.apollo.dev/core/v0.1\\"),
-      @core(feature: \\"https://specs.apollo.dev/join/v0.1\\")
+      @core(feature: \\"https://specs.apollo.dev/join/v0.1\\"),
+      @core(feature: \\"https://specs.apollo.dev/tag/v0.1\\")
     {
       query: Query
     }
@@ -1083,6 +1084,8 @@ it('tag directives are still included when usages are on an @external field', ()
     directive @join__owner(graph: join__Graph!) on OBJECT | INTERFACE
 
     directive @join__graph(name: String!, url: String!) on ENUM_VALUE
+
+    directive @tag(name: String!) repeatable on FIELD_DEFINITION
 
     scalar join__FieldSet
 

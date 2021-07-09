@@ -195,7 +195,6 @@ export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
         // Capture `@tag` and `@inaccessible` directive applications
         for (const field of definition.fields ?? []) {
           const fieldName = field.name.value;
-
           const tagUsages = findDirectivesOnNode(field, 'tag');
           const inaccessibleUsages = findDirectivesOnNode(
             field,
@@ -355,25 +354,25 @@ export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
   // We need to capture applied directives from the external fields as well,
   // which are stripped and excluded from the main loop over the typeDefs
   for (const { parentTypeName, field } of externalFields) {
-    const tagDirectivesOnField = findDirectivesOnNode(field, 'tag');
-    const inaccessibleDirectivesOnField = findDirectivesOnNode(field, 'inaccessible');
+    const fieldName = field.name.value;
+    const tagUsages = findDirectivesOnNode(field, 'tag');
+    const inaccessibleUsages = findDirectivesOnNode(
+      field,
+      'inaccessible',
+    );
 
-    const appliedDirectivesOnField = [
-      ...tagDirectivesOnField,
-      ...inaccessibleDirectivesOnField,
-    ];
-    if (appliedDirectivesOnField.length > 0) {
+    if (tagUsages.length > 0) appliedDirectiveUsages.add('tag');
+    if (inaccessibleUsages.length > 0)
+      appliedDirectiveUsages.add('inaccessible');
+
+    if (tagUsages.length > 0 || inaccessibleUsages.length > 0) {
       const fieldToDirectivesMap = mapGetOrSet(
         typeNameToFieldDirectivesMap,
         parentTypeName,
         new Map(),
       );
-      const directives = mapGetOrSet(
-        fieldToDirectivesMap,
-        field.name.value,
-        [],
-      );
-      directives.push(...appliedDirectivesOnField);
+      const directives = mapGetOrSet(fieldToDirectivesMap, fieldName, []);
+      directives.push(...[...tagUsages, ...inaccessibleUsages]);
     }
   }
 
