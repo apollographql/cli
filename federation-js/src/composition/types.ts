@@ -39,7 +39,7 @@ export interface FederationField {
   requires?: ReadonlyArray<SelectionNode>;
   provides?: ReadonlyArray<SelectionNode>;
   belongsToValueType?: boolean;
-  appliedDirectives?: DirectiveNode[]
+  otherKnownDirectives?: DirectiveNode[]
 }
 
 export interface FederationDirective {

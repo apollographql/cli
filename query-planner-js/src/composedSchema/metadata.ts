@@ -73,5 +73,5 @@ export interface FederationFieldMetadata {
   graphName?: GraphName;
   requires?: FieldSet;
   provides?: FieldSet;
-  appliedDirectives?: DirectiveNode[];
+  otherKnownDirectives?: DirectiveNode[];
 }

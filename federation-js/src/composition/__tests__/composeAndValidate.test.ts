@@ -185,14 +185,14 @@ describe('unknown types', () => {
     assertCompositionFailure(compositionResult);
     expect(compositionResult.errors[0]).toMatchInlineSnapshot(`
       Object {
-        "code": "EXTENSION_WITH_NO_BASE",
+        "code": "TAG_USED_WITH_EXTERNAL",
         "locations": Array [
           Object {
-            "column": 1,
-            "line": 2,
+            "column": 21,
+            "line": 3,
           },
         ],
-        "message": "[inventory] Product -> \`Product\` is an extension type, but \`Product\` is not defined in any service",
+        "message": "[inventory] Product.id -> Found illegal use of @tag directive. @tag directives cannot currently be used in tandem with an @external directive.",
       }
     `);
   });

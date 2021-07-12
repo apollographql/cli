@@ -33,7 +33,7 @@ import { assert } from '../utilities';
 import { CoreDirective } from '../coreSpec';
 import { getJoinDefinitions } from '../joinSpec';
 import { printFieldSet } from '../composition/utils';
-import { appliedDirectives } from '../directives';
+import { otherKnownDirectives } from '../directives';
 
 type Options = {
   /**
@@ -172,19 +172,19 @@ function printSchemaDefinition(schema: GraphQLSchema): string {
 }
 
 function printCoreDirectives(schema: GraphQLSchema) {
-  const appliedDirectiveNames = appliedDirectives.map(({name}) => name);
+  const otherKnownDirectiveNames = otherKnownDirectives.map(({ name }) => name);
   const schemaDirectiveNames = schema.getDirectives().map(({ name }) => name);
-  const appliedDirectivesToInclude = schemaDirectiveNames.filter((name) =>
-    appliedDirectiveNames.includes(name),
+  const otherKnownDirectivesToInclude = schemaDirectiveNames.filter((name) =>
+    otherKnownDirectiveNames.includes(name),
   );
-  const appliedDirectiveSpecUrls = appliedDirectivesToInclude.map(
+  const otherKnownDirectivesSpecUrls = otherKnownDirectivesToInclude.map(
     (name) => `https://specs.apollo.dev/${name}/v0.1`,
   );
 
   return [
     'https://specs.apollo.dev/core/v0.1',
     'https://specs.apollo.dev/join/v0.1',
-    ...appliedDirectiveSpecUrls,
+    ...otherKnownDirectivesSpecUrls,
   ].map((feature) => `\n  @core(feature: ${printStringLiteral(feature)})`);
 }
 
@@ -367,7 +367,7 @@ function printFields(
       // We don't want to print field owner directives on fields belonging to an interface type
       (isObjectType(type)
         ? printJoinFieldDirectives(f, type, context) +
-          printAppliedDirectives(f)
+          printOtherKnownDirectives(f)
         : ''),
   );
 
@@ -440,13 +440,13 @@ function printJoinFieldDirectives(
 
 // Core addition: print `@tag` and `@inaccessible` directives found in subgraph
 // SDL into the supergraph SDL
-function printAppliedDirectives(field: GraphQLField<any, any>) {
-  const appliedDirectives = (
-    field.extensions?.federation?.appliedDirectives ?? []
+function printOtherKnownDirectives(field: GraphQLField<any, any>) {
+  const otherKnownDirectives = (
+    field.extensions?.federation?.otherKnownDirectives ?? []
   ) as DirectiveNode[];
 
-  if (appliedDirectives.length < 1) return '';
-  return ` ${appliedDirectives
+  if (otherKnownDirectives.length < 1) return '';
+  return ` ${otherKnownDirectives
     .slice()
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map(print)
