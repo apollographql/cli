@@ -198,12 +198,23 @@ export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
 
         // Capture `@tag` and `@inaccessible` directive usages
         for (const field of definition.fields ?? []) {
-          captureOtherKnownDirectives(
-            field,
-            typeName,
-            typeNameToFieldDirectivesMap,
-            otherKnownDirectiveUsages,
-          );
+          const fieldName = field.name.value;
+          const tagUsages = findDirectivesOnNode(field, 'tag');
+          const inaccessibleUsages = findDirectivesOnNode(field, 'inaccessible');
+
+          if (tagUsages.length > 0) otherKnownDirectiveUsages.add('tag');
+          if (inaccessibleUsages.length > 0)
+            otherKnownDirectiveUsages.add('inaccessible');
+
+          if (tagUsages.length > 0 || inaccessibleUsages.length > 0) {
+            const fieldToDirectivesMap = mapGetOrSet(
+              typeNameToFieldDirectivesMap,
+              typeName,
+              new Map(),
+            );
+            const directives = mapGetOrSet(fieldToDirectivesMap, fieldName, []);
+            directives.push(...[...tagUsages, ...inaccessibleUsages]);
+          }
         }
       }
 
@@ -339,18 +350,6 @@ export function buildMapsFromServiceList(serviceList: ServiceDefinition[]) {
         }
       }
     }
-  }
-
-  // We need to capture other directive usages (`@tag` and `@inaccessible`) from
-  // the external fields as well, which are stripped and excluded from the main
-  // loop over the typeDefs
-  for (const { parentTypeName, field } of externalFields) {
-    captureOtherKnownDirectives(
-      field,
-      parentTypeName,
-      typeNameToFieldDirectivesMap,
-      otherKnownDirectiveUsages,
-    );
   }
 
   // Since all Query/Mutation definitions in service schemas are treated as
@@ -763,32 +762,5 @@ export function composeServices(services: ServiceDefinition[]): CompositionResul
       schema,
       supergraphSdl: printSupergraphSdl(schema, services),
     };
-  }
-}
-
-// Capture usages of non-federation Apollo directives, currently
-// `@tag` and `@inaccessible`
-function captureOtherKnownDirectives(
-  field: FieldDefinitionNode,
-  parentTypeName: string,
-  typeNameToFieldDirectivesMap: TypeNameToFieldDirectivesMap,
-  otherKnownDirectiveUsages: OtherKnownDirectiveUsages,
-) {
-  const fieldName = field.name.value;
-  const tagUsages = findDirectivesOnNode(field, 'tag');
-  const inaccessibleUsages = findDirectivesOnNode(field, 'inaccessible');
-
-  if (tagUsages.length > 0) otherKnownDirectiveUsages.add('tag');
-  if (inaccessibleUsages.length > 0)
-    otherKnownDirectiveUsages.add('inaccessible');
-
-  if (tagUsages.length > 0 || inaccessibleUsages.length > 0) {
-    const fieldToDirectivesMap = mapGetOrSet(
-      typeNameToFieldDirectivesMap,
-      parentTypeName,
-      new Map(),
-    );
-    const directives = mapGetOrSet(fieldToDirectivesMap, fieldName, []);
-    directives.push(...[...tagUsages, ...inaccessibleUsages]);
   }
 }

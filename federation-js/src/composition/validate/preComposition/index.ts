@@ -4,3 +4,4 @@ export { keyFieldsMissingExternal } from './keyFieldsMissingExternal';
 export { reservedFieldUsed } from './reservedFieldUsed';
 export { duplicateEnumOrScalar } from './duplicateEnumOrScalar';
 export { duplicateEnumValue } from './duplicateEnumValue';
+export { tagUsedWithExternal } from './tagUsedWithExternal';
