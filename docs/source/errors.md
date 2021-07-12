@@ -58,6 +58,7 @@ If Apollo Gateway encounters an error, composition fails. This document lists co
 | Code | Description |
 |---|---|
 | `TAG_USED_WITH_EXTERNAL` | Fields marked as `@external` cannot also have `@tag` usages.  |
+
 ## Custom directives
 
 | Code | Description |
