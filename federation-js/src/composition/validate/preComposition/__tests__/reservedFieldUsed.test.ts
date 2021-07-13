@@ -68,6 +68,37 @@ describe('reservedFieldUsed', () => {
     `);
   });
 
+  it('warns when _service or _entities is used on an extension of query', () => {
+    const serviceA = {
+      typeDefs: gql`
+        extend type Query {
+          product: Product
+          _service: String!
+          _entities: String!
+        }
+
+        type Product {
+          sku: String
+        }
+      `,
+      name: 'serviceA',
+    };
+
+    const warnings = validateReservedFieldUsed(serviceA);
+    expect(warnings).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "code": "RESERVED_FIELD_USED",
+          "message": "[serviceA] Query._service -> _service is a field reserved for federation and can't be used at the Query root.",
+        },
+        Object {
+          "code": "RESERVED_FIELD_USED",
+          "message": "[serviceA] Query._entities -> _entities is a field reserved for federation and can't be used at the Query root.",
+        },
+      ]
+    `);
+  });
+
   it('warns when _service or _entities is used in a schema extension', () => {
     const schemaDefinition = {
       typeDefs: gql`

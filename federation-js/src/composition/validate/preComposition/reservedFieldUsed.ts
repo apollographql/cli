@@ -1,5 +1,5 @@
-import { GraphQLError, visit } from 'graphql';
-import { ServiceDefinition } from '../../types';
+import { GraphQLError, visit, ObjectTypeExtensionNode, ObjectTypeDefinitionNode} from 'graphql';
+import {ServiceDefinition} from '../../types';
 import {
   logServiceAndType,
   errorWithCode,
@@ -26,24 +26,31 @@ export const reservedFieldUsed = ({
   });
 
   visit(typeDefs, {
+    ObjectTypeExtension(node) {
+      checkForReservedField(node);
+    },
     ObjectTypeDefinition(node) {
-      if (node.name.value === rootQueryName && node.fields) {
-        for (const field of node.fields) {
-          const { value: fieldName } = field.name;
-          if (reservedRootFields.includes(fieldName)) {
-            errors.push(
+      checkForReservedField(node)
+    },
+  });
+
+  function checkForReservedField(node: ObjectTypeExtensionNode | ObjectTypeDefinitionNode) {
+    if (node.name.value === rootQueryName && node.fields) {
+      for (const field of node.fields) {
+        const {value: fieldName} = field.name;
+        if (reservedRootFields.includes(fieldName)) {
+          errors.push(
               errorWithCode(
-                'RESERVED_FIELD_USED',
-                logServiceAndType(serviceName, rootQueryName, fieldName) +
+                  'RESERVED_FIELD_USED',
+                  logServiceAndType(serviceName, rootQueryName, fieldName) +
                   `${fieldName} is a field reserved for federation and can\'t be used at the Query root.`,
                 field,
               ),
-            );
-          }
+          );
         }
       }
-    },
-  });
+    }
+  }
 
   return errors;
 };
