@@ -1,0 +1,8 @@
+digraph InterfaceTranslation {
+  I -> T1 [label="∅"]
+  I -> T2 [label="∅"]
+  I -> T3 [label="∅"]
+  T1 [style=dotted]
+  T2 [style=dotted]
+  T3 [style=dotted]
+}

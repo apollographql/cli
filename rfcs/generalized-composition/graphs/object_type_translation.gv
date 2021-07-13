@@ -1,0 +1,8 @@
+digraph ObjTypeTranslation {
+  T -> T1 [label="a"]
+  T -> T2 [label="b"]
+  T -> T3 [label="c(x: Int)"]
+  T1 [style=dotted]
+  T2 [style=dotted]
+  T3 [style=dotted]
+}

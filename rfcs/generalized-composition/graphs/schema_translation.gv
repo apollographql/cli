@@ -1,0 +1,8 @@
+digraph SchemaTranslation {
+  query -> Q [label="∅"]
+  mutation -> M [label="∅"]
+  query [peripheries=2]
+  mutation [peripheries=2]
+  Q [style=dotted]
+  M [style=dotted]
+}

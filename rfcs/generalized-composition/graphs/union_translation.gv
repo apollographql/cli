@@ -1,0 +1,8 @@
+digraph UnionTranslation {
+  U -> T1 [label="∅"]
+  U -> T2 [label="∅"]
+  U -> T3 [label="∅"]
+  T1 [style=dotted]
+  T2 [style=dotted]
+  T3 [style=dotted]
+}
