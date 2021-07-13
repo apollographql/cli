@@ -170,6 +170,36 @@ it("doesn't throw errors when a type is unknown, but captures them instead", () 
   `);
 });
 
+it("doesn't drop fields during composition after an unknown type is encountered", () => {
+  const serviceA = {
+    typeDefs: gql`
+      type Query {
+        foo: Bar!
+        bar: String
+        baz: String
+      }
+
+      extend type Bar @key(fields: "id") {
+        id: ID! @external
+        thing: String
+      }
+    `,
+    name: 'serviceA',
+  };
+
+  let compositionResult: CompositionResult;
+  expect(
+    () => (compositionResult = composeAndValidate([serviceA])),
+  ).not.toThrow();
+
+  assertCompositionFailure(compositionResult);
+  const { schema } = compositionResult;
+
+  // `foo` field will not exist due to missing `Bar`,
+  // but `bar` and `baz` should be present
+  expect(Object.keys(schema.getQueryType().getFields())).toHaveLength(2);
+});
+
 it('treats types with @extends as type extensions', () => {
   const serviceA = {
     typeDefs: gql`
