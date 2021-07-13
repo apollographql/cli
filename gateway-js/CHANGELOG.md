@@ -4,7 +4,8 @@
 
 > The changes noted within this `vNEXT` section have not been released yet.  New PRs and commits which introduce changes should include an entry in this `vNEXT` section as part of their development.  When a release is being prepared, a new header will be (manually) created below and the appropriate changes within that release will be moved into the new section.
 
-- _Nothing yet. Stay tuned!_
+- Fixes bug where one `onSchemaChange` listener throwing would prevent other `onSchemaChange` listeners from being notified. [PR #738](https://github.com/apollographql/federation/pull/738)
+- Adds `onSchemaLoadOrUpdate` method to register listeners for schema load and updates, and to receive both the API schema and the core supergraph SDL. `onSchemaChange` has been deprecated in favor of this method. Note that `onSchemaChange` listeners are not notified when loading schemas from static gateway configurations, while `onSchemaLoadOrUpdate` listeners are notified. [PR #738](https://github.com/apollographql/federation/pull/738)
 
 ## v0.33.0
 
