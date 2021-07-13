@@ -210,4 +210,28 @@ describe('keyFieldsMissingExternal', () => {
       ]
     `);
   });
+
+
+  it('nested key selection set on a value type', () => {
+    const serviceA = {
+      typeDefs: gql`
+          extend type Car @key(fields: "model { name kit { upc } }") {
+              model: Model! @external
+          }
+
+          type Model {
+              name: String!
+              kit: Kit
+          }
+
+          type Kit {
+              upc: String!
+          }
+      `,
+      name: 'serviceA',
+    };
+
+    const warnings = validateKeyFieldsMissingExternal(serviceA);
+    expect(warnings).toHaveLength(0);
+  });
 });
