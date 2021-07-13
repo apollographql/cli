@@ -9,6 +9,7 @@ The following open-source GraphQL server libraries provide support for Apollo Fe
 
 | Language    | Framework     | Library                                                                          |
 | ----------- | ------------- | -------------------------------------------------------------------------------- |
+| Clojure       | lacinia       | [lacinia](https://github.com/walmartlabs/lacinia/blob/master/docs/federation/index.rst) |
 | Go            | gqlgen        | [gqlgen](https://github.com/99designs/gqlgen/tree/master/plugin/federation)      |
 | Java          | graphql-java  | [federation-jvm](https://github.com/apollographql/federation-jvm)                |
 | Java / Kotlin | dgs           | [dgs](https://github.com/netflix/dgs-framework/)                                 |
