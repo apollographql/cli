@@ -48,7 +48,7 @@ import {
 import { validateSDL } from 'graphql/validation/validate';
 import { compositionRules } from './rules';
 import { printSupergraphSdl } from '../service/printSupergraphSdl';
-import { mapGetOrSet, mapValues } from '../utilities';
+import { mapGetOrSet, mapValues, filterMap } from '../utilities';
 
 const EmptyQueryDefinition = {
   kind: Kind.OBJECT_TYPE_DEFINITION,
@@ -762,6 +762,14 @@ export function composeServices(services: ServiceDefinition[]): CompositionResul
 
   schema = lexicographicSortSchema(schema);
 
+  // Now that we have a constructed schema, we can filter this map based on types
+  // that made it into the schema successfully. Types that didn't make it into the
+  // schema will have related composition errors.
+  const filteredTypeNameToFieldDirectivesMap = filterMap(
+    typeNameToFieldDirectivesMap,
+    (typeName) => !!schema.getType(typeName),
+  );
+
   addFederationMetadataToSchemaNodes({
     schema,
     typeToServiceMap,
@@ -769,7 +777,7 @@ export function composeServices(services: ServiceDefinition[]): CompositionResul
     keyDirectivesMap,
     valueTypes,
     directiveDefinitionsMap,
-    typeNameToFieldDirectivesMap,
+    typeNameToFieldDirectivesMap: filteredTypeNameToFieldDirectivesMap,
   });
 
   if (errors.length > 0) {
