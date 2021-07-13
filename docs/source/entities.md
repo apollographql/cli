@@ -209,7 +209,7 @@ type Query {
 
 ## Migrating entities and fields (advanced)
 
-As your federated graph grows, you might decide that you want an entity (or a particular field of an entity) to originate in a different subgraph. Apollo Gateway helps you perform these migrations safely.
+As your federated graph grows, you might decide that you want an entity (or a particular field of an entity) to originate in a different subgraph. This is _only_ possible _if_ you're using managed federation and a schema registry. If you're _not_ using managed federation, Apollo can't help you rename fields.
 
 ### Entity migration
 
@@ -229,11 +229,11 @@ We can perform this migration safely with the following steps:
 
     * _If you **are** using managed federation, Apollo Studio does **not** publish an updated configuration, and the gateway continues to resolve the `Bill` entity in the `payments` subgraph._
 
-    * _If you are **not** using managed federation, your gateway starts resolving the `Bill` entity in whichever subgraph is listed **last** in your gateway's [`serviceList`](/api/apollo-gateway/#constructor)._
+    * _If you are **not** using managed federation, your gateway will fail to come up with a composition error, and none of your fields will load. Do not attempt a field migration unless you're using managed federation!_
 
 4. In the `payments` subgraph's schema, remove the `Bill` entity. If you're using managed federation, register this schema change with Studio.
 
-    _This takes care of the composition error, regardless of whether you are using managed federation. The gateway will begin resolving the `Bill` entity in the `billing` subgraph._
+    _This takes care of the composition error. The gateway will begin resolving the `Bill` entity in the `billing` subgraph._
 
 5. Remove the resolvers for `Bill` fields from the `payments` subgraph and deploy the updated subgraph to your environment.
 
@@ -242,6 +242,8 @@ We can perform this migration safely with the following steps:
 ### Field migration
 
 The steps for migrating an individual field are nearly identical in form to the steps for [migrating an entire entity](#entity-migration).
+
+Like entity migration, these steps _only_ work if you're using managed federation with a schema registry.
 
 Let's say our `products` subgraph defines a `Product` entity, which includes the boolean field `inStock`. Then, we add an `inventory` subgraph to our federated graph. It now makes sense for the `inStock` field to originate in the `inventory` subgraph instead.
 
