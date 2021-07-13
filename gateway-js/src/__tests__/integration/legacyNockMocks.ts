@@ -1,4 +1,4 @@
-import { HEALTH_CHECK_QUERY, SERVICE_DEFINITION_QUERY } from '@apollo/gateway';
+import { HEALTH_CHECK_QUERY, HEALTH_CHECK_QUERY_OPERATION_NAME, SERVICE_DEFINITION_QUERY } from '@apollo/gateway';
 import nock from 'nock';
 import { MockService } from './legacyNetworkRequests.test';
 
@@ -23,6 +23,7 @@ export function mockSdlQuerySuccess(service: MockService) {
 export function mockServiceHealthCheck({ url }: MockService) {
   return nock(url).post('/', {
     query: HEALTH_CHECK_QUERY,
+    operationName: HEALTH_CHECK_QUERY_OPERATION_NAME,
   });
 }
 

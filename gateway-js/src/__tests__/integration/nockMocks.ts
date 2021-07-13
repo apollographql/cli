@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { MockService } from './networkRequests.test';
-import { HEALTH_CHECK_QUERY, SERVICE_DEFINITION_QUERY } from '../..';
+import { HEALTH_CHECK_QUERY, HEALTH_CHECK_QUERY_OPERATION_NAME, SERVICE_DEFINITION_QUERY } from '../..';
 import { SUPERGRAPH_SDL_QUERY } from '../../loadSupergraphSdlFromStorage';
 import { getTestingSupergraphSdl } from '../../__tests__/execution-utils';
 import { print } from 'graphql';
@@ -34,6 +34,7 @@ export function mockSdlQuerySuccess(service: MockService) {
 export function mockServiceHealthCheck({ url }: MockService) {
   return nock(url).post('/', {
     query: HEALTH_CHECK_QUERY,
+    operationName: HEALTH_CHECK_QUERY_OPERATION_NAME,
   });
 }
 
