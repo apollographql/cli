@@ -13,6 +13,17 @@ import {
   isObjectType,
 } from 'graphql';
 import { PromiseOrValue } from 'graphql/jsutils/PromiseOrValue';
+import { CacheHint, CachePolicy } from 'apollo-server-types';
+
+declare module 'graphql/type/definition' {
+  interface GraphQLResolveInfo {
+    cacheControl: {
+      cacheHint: CachePolicy;
+      setCacheHint(hint: CacheHint): void;
+      cacheHintFromType(t: GraphQLCompositeType): CacheHint | undefined;
+    };
+  }
+}
 
 export const EntityType = new GraphQLUnionType({
   name: '_Entity',
@@ -85,6 +96,15 @@ export const entitiesField: GraphQLFieldConfig<any, any> = {
         throw new Error(
           `The _entities resolver tried to load an entity for type "${__typename}", but no object type of that name was found in the schema`,
         );
+      }
+
+      if (info.cacheControl.cacheHint.replace) {
+        const cacheHint: CacheHint | undefined =
+          info.cacheControl.cacheHintFromType(type);
+
+        if (cacheHint) {
+          info.cacheControl.cacheHint.replace(cacheHint);
+        }
       }
 
       const resolveReference = type.resolveReference
