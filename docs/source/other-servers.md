@@ -14,6 +14,7 @@ The following open-source GraphQL server libraries provide support for Apollo Fe
 | Java / Kotlin | dgs           | [dgs](https://github.com/netflix/dgs-framework/)                                 |
 | JavaScript    | apollo-server | [apollo-server](https://github.com/apollographql/apollo-server/)                 |
 | Kotlin        | graphql-java  | [graphql-kotlin](https://github.com/ExpediaGroup/graphql-kotlin)                 |
+| Python        | strawberry    | [strawberry](https://github.com/strawberry-graphql/strawberry)                   |
 | Python        | ariadne       | [ariadne](https://github.com/mirumee/ariadne)                                    |
 | Python        | graphene      | [graphene-federation](https://github.com/preply/graphene-federation)             |
 | Scala         | caliban       | [caliban](https://github.com/ghostdogpr/caliban)                                 |
